@@ -361,7 +361,7 @@
               <MiscControls>--C99</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F439xx</Define>
               <Undefine />
-              <IncludePath>../Inc;O:/arm/cube/STM32Cube_FW_F4_V1.12.0/Drivers/STM32F4xx_HAL_Driver/Inc;O:/arm/cube/STM32Cube_FW_F4_V1.12.0/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;O:/arm/cube/STM32Cube_FW_F4_V1.12.0/Drivers/CMSIS/Include;O:/arm/cube/STM32Cube_FW_F4_V1.12.0/Drivers/CMSIS/Device/ST/STM32F4xx/Include</IncludePath>
+              <IncludePath>../Inc;  O:/arm/cube/STM32Cube_FW_F4_V1.12.0/Drivers/STM32F4xx_HAL_Driver/Inc;  O:/arm/cube/STM32Cube_FW_F4_V1.12.0/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;  O:/arm/cube/STM32Cube_FW_F4_V1.12.0/Drivers/CMSIS/Include;  O:/arm/cube/STM32Cube_FW_F4_V1.12.0/Drivers/CMSIS/Device/ST/STM32F4xx/Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -520,6 +520,16 @@
               <FileName>stm32f4xx_hal_flash.c</FileName>
               <FileType>1</FileType>
               <FilePath>O:/arm/cube/STM32Cube_FW_F4_V1.12.0/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c</FilePath>
+              
+            </File><File>
+              <FileName>stm32f4xx_ll_fmc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>O:/arm/cube/STM32Cube_FW_F4_V1.12.0/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_fmc.c</FilePath>
+              
+            </File><File>
+              <FileName>stm32f4xx_hal_sdram.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>O:/arm/cube/STM32Cube_FW_F4_V1.12.0/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_sdram.c</FilePath>
               
             </File></Files>
         </Group></Groups>
