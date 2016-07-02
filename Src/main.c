@@ -57,6 +57,68 @@ static void MX_FMC_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+static uint32_t pattern = 0x12345678;
+static volatile uint32_t read_pattern = 0;
+static uint32_t sdram_start_address = 0xd0000000;
+volatile uint32_t i;
+volatile uint32_t start,stop,delta;
+
+static FMC_SDRAM_CommandTypeDef Command;
+void BSP_SDRAM_Initialization_sequence(uint32_t RefreshCount)
+{
+  __IO uint32_t tmpmrd =0;
+  
+  /* Step 1:  Configure a clock configuration enable command */
+  Command.CommandMode             = FMC_SDRAM_CMD_CLK_ENABLE;
+  Command.CommandTarget           = FMC_SDRAM_CMD_TARGET_BANK2;
+  Command.AutoRefreshNumber       = 1;
+  Command.ModeRegisterDefinition  = 0;
+
+  /* Send the command */
+  HAL_SDRAM_SendCommand(&hsdram1, &Command, 0xFFFF);
+
+  /* Step 2: Insert 100 us minimum delay */ 
+  /* Inserted delay is equal to 1 ms due to systick time base unit (ms) */
+  HAL_Delay(1);
+
+  /* Step 3: Configure a PALL (precharge all) command */ 
+  Command.CommandMode             = FMC_SDRAM_CMD_PALL;
+  Command.CommandTarget           = FMC_SDRAM_CMD_TARGET_BANK2;
+  Command.AutoRefreshNumber       = 1;
+  Command.ModeRegisterDefinition  = 0;
+
+  /* Send the command */
+  HAL_SDRAM_SendCommand(&hsdram1, &Command, 0xFFFF);  
+  
+  /* Step 4: Configure an Auto Refresh command */ 
+  Command.CommandMode             = FMC_SDRAM_CMD_AUTOREFRESH_MODE;
+  Command.CommandTarget           = FMC_SDRAM_CMD_TARGET_BANK2;
+  Command.AutoRefreshNumber       = 4;
+  Command.ModeRegisterDefinition  = 0;
+
+  /* Send the command */
+  HAL_SDRAM_SendCommand(&hsdram1, &Command, 0xFFFF);
+  
+  /* Step 5: Program the external memory mode register */
+  tmpmrd = (uint32_t)0          |
+                     0   |
+                     0x0030           |
+                     0 |
+                     0x0200;
+  
+  Command.CommandMode             = FMC_SDRAM_CMD_LOAD_MODE;
+  Command.CommandTarget           = FMC_SDRAM_CMD_TARGET_BANK2;
+  Command.AutoRefreshNumber       = 1;
+  Command.ModeRegisterDefinition  = tmpmrd;
+
+  /* Send the command */
+  HAL_SDRAM_SendCommand(&hsdram1, &Command, 0xFFFF);
+  
+  /* Step 6: Set the refresh rate counter */
+  /* Set the device refresh rate */
+  HAL_SDRAM_ProgramRefreshRate(&hsdram1, RefreshCount); 
+}
+
 
 /* USER CODE END 0 */
 
@@ -94,6 +156,22 @@ int main(void)
 		HAL_GPIO_TogglePin(red_led_GPIO_Port,red_led_Pin);
 		HAL_GPIO_TogglePin(green_led_GPIO_Port,green_led_Pin);
 		HAL_Delay(250);
+		
+		start = HAL_GetTick();
+		for(i=0;i<8*1024*1024;i+=4){
+			HAL_SDRAM_Write_32b(&hsdram1,(uint32_t*)(sdram_start_address+i),&pattern,1);
+			HAL_SDRAM_Read_32b(&hsdram1,(uint32_t*)(sdram_start_address+i),&read_pattern,1);
+			if(read_pattern!=0x12345678)
+			{
+				while(1){
+					HAL_GPIO_TogglePin(red_led_GPIO_Port,red_led_Pin);
+					HAL_GPIO_TogglePin(green_led_GPIO_Port,green_led_Pin);
+					HAL_Delay(100);
+				}
+			}
+	}
+		stop = HAL_GetTick();
+	delta = stop- start;
 
   }
   /* USER CODE END 3 */
@@ -167,22 +245,23 @@ static void MX_FMC_Init(void)
   hsdram1.Init.InternalBankNumber = FMC_SDRAM_INTERN_BANKS_NUM_4;
   hsdram1.Init.CASLatency = FMC_SDRAM_CAS_LATENCY_3;
   hsdram1.Init.WriteProtection = FMC_SDRAM_WRITE_PROTECTION_DISABLE;
-  hsdram1.Init.SDClockPeriod = FMC_SDRAM_CLOCK_DISABLE;
+  hsdram1.Init.SDClockPeriod = FMC_SDRAM_CLOCK_PERIOD_2;
   hsdram1.Init.ReadBurst = FMC_SDRAM_RBURST_DISABLE;
-  hsdram1.Init.ReadPipeDelay = FMC_SDRAM_RPIPE_DELAY_0;
+  hsdram1.Init.ReadPipeDelay = FMC_SDRAM_RPIPE_DELAY_1;
   /* SdramTiming */
-  SdramTiming.LoadToActiveDelay = 16;
-  SdramTiming.ExitSelfRefreshDelay = 16;
-  SdramTiming.SelfRefreshTime = 16;
-  SdramTiming.RowCycleDelay = 16;
-  SdramTiming.WriteRecoveryTime = 16;
-  SdramTiming.RPDelay = 16;
-  SdramTiming.RCDDelay = 16;
+  SdramTiming.LoadToActiveDelay = 2;
+  SdramTiming.ExitSelfRefreshDelay = 7;
+  SdramTiming.SelfRefreshTime = 4;
+  SdramTiming.RowCycleDelay = 7;
+  SdramTiming.WriteRecoveryTime = 2;
+  SdramTiming.RPDelay = 2;
+  SdramTiming.RCDDelay = 2;
 
   if (HAL_SDRAM_Init(&hsdram1, &SdramTiming) != HAL_OK)
   {
     Error_Handler();
   }
+	BSP_SDRAM_Initialization_sequence(1386);
 
 }
 

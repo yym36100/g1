@@ -1,7 +1,18 @@
 #MicroXplorer Configuration settings - do not modify
 FMC.CASLatency1=FMC_SDRAM_CAS_LATENCY_3
-FMC.IPParameters=RowBitsNumber1,CASLatency1
+FMC.ExitSelfRefreshDelay1=7
+FMC.IPParameters=RowBitsNumber1,CASLatency1,ReadPipeDelay1,ReadPipeDelay2,LoadToActiveDelay1,ExitSelfRefreshDelay1,SelfRefreshTime1,RowCycleDelay1,RowCycleDelay2,WriteRecoveryTime1,RPDelay1,RPDelay2,RCDDelay1
+FMC.LoadToActiveDelay1=2
+FMC.RCDDelay1=2
+FMC.RPDelay1=2
+FMC.RPDelay2=2
+FMC.ReadPipeDelay1=FMC_SDRAM_RPIPE_DELAY_1
+FMC.ReadPipeDelay2=FMC_SDRAM_RPIPE_DELAY_1
 FMC.RowBitsNumber1=FMC_SDRAM_ROW_BITS_NUM_12
+FMC.RowCycleDelay1=7
+FMC.RowCycleDelay2=7
+FMC.SelfRefreshTime1=4
+FMC.WriteRecoveryTime1=3
 File.Version=6
 KeepUserPlacement=true
 Mcu.Family=STM32F4
