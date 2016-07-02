@@ -41,8 +41,12 @@
 
 /* Private define ------------------------------------------------------------*/
 
+#define TFT_CSX_Pin GPIO_PIN_2
+#define TFT_CSX_GPIO_Port GPIOC
 #define user_button_Pin GPIO_PIN_0
 #define user_button_GPIO_Port GPIOA
+#define TFT_DCX_Pin GPIO_PIN_13
+#define TFT_DCX_GPIO_Port GPIOD
 #define green_led_Pin GPIO_PIN_13
 #define green_led_GPIO_Port GPIOG
 #define red_led_Pin GPIO_PIN_14
