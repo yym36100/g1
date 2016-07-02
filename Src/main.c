@@ -38,6 +38,7 @@
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
+DMA_HandleTypeDef hdma_memtomem_dma2_stream0;
 SDRAM_HandleTypeDef hsdram1;
 
 /* USER CODE BEGIN PV */
@@ -49,6 +50,7 @@ SDRAM_HandleTypeDef hsdram1;
 void SystemClock_Config(void);
 void Error_Handler(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_FMC_Init(void);
 
 /* USER CODE BEGIN PFP */
@@ -120,6 +122,11 @@ void BSP_SDRAM_Initialization_sequence(uint32_t RefreshCount)
   HAL_SDRAM_ProgramRefreshRate(&hsdram1, RefreshCount); 
 }
 
+volatile uint32_t done = 0;
+void myDMA_Callback(DMA_HandleTypeDef *_hdma)
+{
+	done = 1;
+}
 
 /* USER CODE END 0 */
 
@@ -140,6 +147,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_FMC_Init();
 
   /* USER CODE BEGIN 2 */
@@ -160,15 +168,28 @@ int main(void)
 		
 		start = HAL_GetTick();
 		p = (uint32_t*)sdram_start_address;
-		for(i=0;i<8*1024*1024;i+=4){
+		//r(i=0;i<8*1024*1024;i+=4){
 			//HAL_SDRAM_Write_32b(&hsdram1,(uint32_t*)(sdram_start_address+i),&pattern,1);			
-			 *(__IO uint32_t *)(p++) = pattern;
+			//(__IO uint32_t *)(p++) = pattern;
+//}
+		
+		//L_DMA_XFER_CPLT_CB_ID
+		HAL_DMA_RegisterCallback(&hdma_memtomem_dma2_stream0,HAL_DMA_XFER_CPLT_CB_ID,myDMA_Callback);
+		for(i=0;i<128/4;i++){
+			HAL_DMA_Start_IT(&hdma_memtomem_dma2_stream0,
+			(uint32_t)&pattern,
+			(uint32_t)p,65532);
+			p+=65532;
+			while(!done);
+			done = 0;
 		}
+		
+		
 		stop = HAL_GetTick();
 		delta = stop- start;
 		
 		p = (uint32_t*)sdram_start_address;
-		for(i=0;i<8*1024*1024;i+=4){
+		for(i=0;i<128*65532;i+=4){
 			//HAL_SDRAM_Read_32b(&hsdram1,(uint32_t*)(sdram_start_address+i),&read_pattern,1);
 			read_pattern = *(__IO uint32_t *)(p++);
 			if(read_pattern!=0xaa55aa55)
@@ -176,7 +197,7 @@ int main(void)
 				while(1){
 					HAL_GPIO_TogglePin(red_led_GPIO_Port,red_led_Pin);
 					HAL_GPIO_TogglePin(green_led_GPIO_Port,green_led_Pin);
-					HAL_Delay(100);
+					HAL_Delay(50);
 				}
 			}
 		}
@@ -239,6 +260,43 @@ void SystemClock_Config(void)
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
+/** 
+  * Enable DMA controller clock
+  * Configure DMA for memory to memory transfers
+  *   hdma_memtomem_dma2_stream0
+  */
+static void MX_DMA_Init(void) 
+{
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA2_CLK_ENABLE();
+
+  /* Configure DMA request hdma_memtomem_dma2_stream0 on DMA2_Stream0 */
+  hdma_memtomem_dma2_stream0.Instance = DMA2_Stream0;
+  hdma_memtomem_dma2_stream0.Init.Channel = DMA_CHANNEL_0;
+  hdma_memtomem_dma2_stream0.Init.Direction = DMA_MEMORY_TO_MEMORY;
+  hdma_memtomem_dma2_stream0.Init.PeriphInc = DMA_PINC_DISABLE;
+  hdma_memtomem_dma2_stream0.Init.MemInc = DMA_MINC_ENABLE;
+  hdma_memtomem_dma2_stream0.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+  hdma_memtomem_dma2_stream0.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
+  hdma_memtomem_dma2_stream0.Init.Mode = DMA_NORMAL;
+  hdma_memtomem_dma2_stream0.Init.Priority = DMA_PRIORITY_LOW;
+  hdma_memtomem_dma2_stream0.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
+  hdma_memtomem_dma2_stream0.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
+  hdma_memtomem_dma2_stream0.Init.MemBurst = DMA_MBURST_INC4;
+  hdma_memtomem_dma2_stream0.Init.PeriphBurst = DMA_PBURST_INC4;
+  if (HAL_DMA_Init(&hdma_memtomem_dma2_stream0) != HAL_OK)
+  {
+    Error_Handler();
+  }
+        
+  
+
+  /* DMA interrupt init */
+  /* DMA2_Stream0_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
+
+}
 /* FMC initialization function */
 static void MX_FMC_Init(void)
 {
@@ -257,7 +315,7 @@ static void MX_FMC_Init(void)
   hsdram1.Init.WriteProtection = FMC_SDRAM_WRITE_PROTECTION_DISABLE;
   hsdram1.Init.SDClockPeriod = FMC_SDRAM_CLOCK_PERIOD_2;
   hsdram1.Init.ReadBurst = FMC_SDRAM_RBURST_ENABLE;
-  hsdram1.Init.ReadPipeDelay = FMC_SDRAM_RPIPE_DELAY_0;
+  hsdram1.Init.ReadPipeDelay = FMC_SDRAM_RPIPE_DELAY_1;
   /* SdramTiming */
   SdramTiming.LoadToActiveDelay = 2;
   SdramTiming.ExitSelfRefreshDelay = 7;
