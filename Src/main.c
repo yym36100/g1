@@ -31,7 +31,9 @@
   ******************************************************************************
   */
 /* Includes ------------------------------------------------------------------*/
+#include <stdlib.h>
 #include "stm32f4xx_hal.h"
+#include "ili9341.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -68,7 +70,7 @@ static void MX_SPI5_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-static uint32_t pattern = 0xaa55aa55;
+static volatile uint32_t pattern = 0xff00ff00;
 static volatile uint32_t read_pattern = 0;
 static uint32_t sdram_start_address = 0xd0000000;
 static uint32_t *p;
@@ -176,7 +178,7 @@ int main(void)
   /* USER CODE BEGIN 3 */
 		HAL_GPIO_TogglePin(red_led_GPIO_Port,red_led_Pin);
 		HAL_GPIO_TogglePin(green_led_GPIO_Port,green_led_Pin);
-		//HAL_Delay(250);
+		HAL_Delay(200);
 		
 		start = HAL_GetTick();
 		p = (uint32_t*)sdram_start_address;
@@ -186,12 +188,14 @@ int main(void)
 //}
 		
 		//L_DMA_XFER_CPLT_CB_ID
+		pattern = rand();
+		
 		HAL_DMA_RegisterCallback(&hdma_memtomem_dma2_stream0,HAL_DMA_XFER_CPLT_CB_ID,myDMA_Callback);
-		for(i=0;i<128/4;i++){
+		for(i=0;i<2;i++){
 			HAL_DMA_Start_IT(&hdma_memtomem_dma2_stream0,
 			(uint32_t)&pattern,
-			(uint32_t)p,65532);
-			p+=65532;
+			(uint32_t)p,38400);
+			p+=38400;
 			while(!done);
 			done = 0;
 		}
@@ -199,7 +203,7 @@ int main(void)
 		
 		stop = HAL_GetTick();
 		delta = stop- start;
-		
+		#if 0
 		p = (uint32_t*)sdram_start_address;
 		for(i=0;i<128*65532;i+=4){
 			//HAL_SDRAM_Read_32b(&hsdram1,(uint32_t*)(sdram_start_address+i),&read_pattern,1);
@@ -215,6 +219,7 @@ int main(void)
 		}
 		stop = HAL_GetTick();
 		delta = stop- start;
+		#endif
 
   }
   /* USER CODE END 3 */
@@ -264,9 +269,9 @@ void SystemClock_Config(void)
   }
 
   PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LTDC;
-  PeriphClkInitStruct.PLLSAI.PLLSAIN = 50;
-  PeriphClkInitStruct.PLLSAI.PLLSAIR = 6;
-  PeriphClkInitStruct.PLLSAIDivR = RCC_PLLSAIDIVR_4;
+  PeriphClkInitStruct.PLLSAI.PLLSAIN = 175;
+  PeriphClkInitStruct.PLLSAI.PLLSAIR = 4;
+  PeriphClkInitStruct.PLLSAIDivR = RCC_PLLSAIDIVR_16;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -311,6 +316,8 @@ static void MX_LTDC_Init(void)
 {
 
   LTDC_LayerCfgTypeDef pLayerCfg;
+  /* Initialization of ILI9341 component */
+  ili9341_Init();
 
   hltdc.Instance = LTDC;
   hltdc.Init.HSPolarity = LTDC_HSPOLARITY_AL;
@@ -338,15 +345,15 @@ static void MX_LTDC_Init(void)
   pLayerCfg.WindowY0 = 0;
   pLayerCfg.WindowY1 = 320;
   pLayerCfg.PixelFormat = LTDC_PIXEL_FORMAT_ARGB8888;
-  pLayerCfg.Alpha = 0;
+  pLayerCfg.Alpha = 255;
   pLayerCfg.Alpha0 = 0;
   pLayerCfg.BlendingFactor1 = LTDC_BLENDING_FACTOR1_CA;
   pLayerCfg.BlendingFactor2 = LTDC_BLENDING_FACTOR2_CA;
-  pLayerCfg.FBStartAdress = 0xd000000;
+  pLayerCfg.FBStartAdress = 0xd0000000;
   pLayerCfg.ImageWidth = 240;
   pLayerCfg.ImageHeight = 320;
   pLayerCfg.Backcolor.Blue = 0;
-  pLayerCfg.Backcolor.Green = 0;
+  pLayerCfg.Backcolor.Green = 255;
   pLayerCfg.Backcolor.Red = 0;
   if (HAL_LTDC_ConfigLayer(&hltdc, &pLayerCfg, 0) != HAL_OK)
   {

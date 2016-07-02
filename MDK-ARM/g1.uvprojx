@@ -334,7 +334,7 @@
               <MiscControls>--C99</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F439xx</Define>
               <Undefine />
-              <IncludePath>../Inc;           O:/arm/cube/STM32Cube_FW_F4_V1.12.0/Drivers/STM32F4xx_HAL_Driver/Inc;           O:/arm/cube/STM32Cube_FW_F4_V1.12.0/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;           O:/arm/cube/STM32Cube_FW_F4_V1.12.0/Drivers/CMSIS/Include;           O:/arm/cube/STM32Cube_FW_F4_V1.12.0/Drivers/CMSIS/Device/ST/STM32F4xx/Include</IncludePath>
+              <IncludePath>../Inc;            O:/arm/cube/STM32Cube_FW_F4_V1.12.0/Drivers/STM32F4xx_HAL_Driver/Inc;            O:/arm/cube/STM32Cube_FW_F4_V1.12.0/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;            O:/arm/cube/STM32Cube_FW_F4_V1.12.0/Drivers/CMSIS/Include;            O:/arm/cube/STM32Cube_FW_F4_V1.12.0/Drivers/CMSIS/Device/ST/STM32F4xx/Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
