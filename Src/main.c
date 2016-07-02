@@ -33,10 +33,11 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdlib.h>
 #include "stm32f4xx_hal.h"
-#include "ili9341.h"
+//#include "ili9341.h"
 
 /* USER CODE BEGIN Includes */
-
+#include <stdlib.h>
+extern unsigned char const bibe[240 * 320 * 3 + 1];
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -199,6 +200,9 @@ int main(void)
 			while(!done);
 			done = 0;
 		}
+		HAL_Delay(250);
+		HAL_DMA2D_Start(&hdma2d,(uint32_t)bibe,sdram_start_address,240,320);
+		HAL_DMA2D_PollForTransfer(&hdma2d,  HAL_MAX_DELAY);
 		
 		
 		stop = HAL_GetTick();
@@ -269,8 +273,8 @@ void SystemClock_Config(void)
   }
 
   PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LTDC;
-  PeriphClkInitStruct.PLLSAI.PLLSAIN = 175;
-  PeriphClkInitStruct.PLLSAI.PLLSAIR = 4;
+  PeriphClkInitStruct.PLLSAI.PLLSAIN = 153;
+  PeriphClkInitStruct.PLLSAI.PLLSAIR = 7;
   PeriphClkInitStruct.PLLSAIDivR = RCC_PLLSAIDIVR_16;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
   {
@@ -292,13 +296,13 @@ static void MX_DMA2D_Init(void)
 {
 
   hdma2d.Instance = DMA2D;
-  hdma2d.Init.Mode = DMA2D_M2M;
+  hdma2d.Init.Mode = DMA2D_M2M_PFC;
   hdma2d.Init.ColorMode = DMA2D_OUTPUT_ARGB8888;
   hdma2d.Init.OutputOffset = 0;
   hdma2d.LayerCfg[1].InputOffset = 0;
-  hdma2d.LayerCfg[1].InputColorMode = DMA2D_INPUT_ARGB8888;
+  hdma2d.LayerCfg[1].InputColorMode = DMA2D_INPUT_RGB888;
   hdma2d.LayerCfg[1].AlphaMode = DMA2D_NO_MODIF_ALPHA;
-  hdma2d.LayerCfg[1].InputAlpha = 0;
+  hdma2d.LayerCfg[1].InputAlpha = 255;
   if (HAL_DMA2D_Init(&hdma2d) != HAL_OK)
   {
     Error_Handler();
@@ -316,7 +320,6 @@ static void MX_LTDC_Init(void)
 {
 
   LTDC_LayerCfgTypeDef pLayerCfg;
-  /* Initialization of ILI9341 component */
   ili9341_Init();
 
   hltdc.Instance = LTDC;
