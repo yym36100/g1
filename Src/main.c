@@ -60,6 +60,7 @@ static void MX_FMC_Init(void);
 static uint32_t pattern = 0x12345678;
 static volatile uint32_t read_pattern = 0;
 static uint32_t sdram_start_address = 0xd0000000;
+static uint32_t *p;
 volatile uint32_t i;
 volatile uint32_t start,stop,delta;
 
@@ -100,7 +101,7 @@ void BSP_SDRAM_Initialization_sequence(uint32_t RefreshCount)
   HAL_SDRAM_SendCommand(&hsdram1, &Command, 0xFFFF);
   
   /* Step 5: Program the external memory mode register */
-  tmpmrd = (uint32_t)0          |
+  tmpmrd = (uint32_t)0x000          |
                      0   |
                      0x0030           |
                      0 |
@@ -155,12 +156,21 @@ int main(void)
   /* USER CODE BEGIN 3 */
 		HAL_GPIO_TogglePin(red_led_GPIO_Port,red_led_Pin);
 		HAL_GPIO_TogglePin(green_led_GPIO_Port,green_led_Pin);
-		HAL_Delay(250);
+		//HAL_Delay(250);
 		
 		start = HAL_GetTick();
+		p = (uint32_t*)sdram_start_address;
 		for(i=0;i<8*1024*1024;i+=4){
-			HAL_SDRAM_Write_32b(&hsdram1,(uint32_t*)(sdram_start_address+i),&pattern,1);
-			HAL_SDRAM_Read_32b(&hsdram1,(uint32_t*)(sdram_start_address+i),&read_pattern,1);
+			//HAL_SDRAM_Write_32b(&hsdram1,(uint32_t*)(sdram_start_address+i),&pattern,1);			
+			 *(__IO uint32_t *)(p++) = pattern;
+		}
+		stop = HAL_GetTick();
+		delta = stop- start;
+		
+		p = (uint32_t*)sdram_start_address;
+		for(i=0;i<8*1024*1024;i+=4){
+			//HAL_SDRAM_Read_32b(&hsdram1,(uint32_t*)(sdram_start_address+i),&read_pattern,1);
+			read_pattern = *(__IO uint32_t *)(p++);
 			if(read_pattern!=0x12345678)
 			{
 				while(1){
@@ -169,9 +179,9 @@ int main(void)
 					HAL_Delay(100);
 				}
 			}
-	}
+		}
 		stop = HAL_GetTick();
-	delta = stop- start;
+		delta = stop- start;
 
   }
   /* USER CODE END 3 */
@@ -253,7 +263,7 @@ static void MX_FMC_Init(void)
   SdramTiming.ExitSelfRefreshDelay = 7;
   SdramTiming.SelfRefreshTime = 4;
   SdramTiming.RowCycleDelay = 7;
-  SdramTiming.WriteRecoveryTime = 2;
+  SdramTiming.WriteRecoveryTime = 3;
   SdramTiming.RPDelay = 2;
   SdramTiming.RCDDelay = 2;
 
