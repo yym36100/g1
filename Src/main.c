@@ -57,10 +57,10 @@ static void MX_FMC_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-static uint32_t pattern = 0x12345678;
-static volatile uint32_t read_pattern = 0;
+static uint16_t pattern = 0x1234;
+static volatile uint16_t read_pattern = 0;
 static uint32_t sdram_start_address = 0xd0000000;
-static uint32_t *p;
+static uint16_t *p;
 volatile uint32_t i;
 volatile uint32_t start,stop,delta;
 
@@ -159,19 +159,19 @@ int main(void)
 		//HAL_Delay(250);
 		
 		start = HAL_GetTick();
-		p = (uint32_t*)sdram_start_address;
-		for(i=0;i<8*1024*1024;i+=4){
+		p = (uint16_t*)sdram_start_address;
+		for(i=0;i<8*1024*1024;i+=2){
 			//HAL_SDRAM_Write_32b(&hsdram1,(uint32_t*)(sdram_start_address+i),&pattern,1);			
-			 *(__IO uint32_t *)(p++) = pattern;
+			 *(__IO uint16_t *)(p++) = pattern;
 		}
 		stop = HAL_GetTick();
 		delta = stop- start;
 		
-		p = (uint32_t*)sdram_start_address;
-		for(i=0;i<8*1024*1024;i+=4){
+		p = (uint16_t*)sdram_start_address;
+		for(i=0;i<8*1024*1024;i+=2){
 			//HAL_SDRAM_Read_32b(&hsdram1,(uint32_t*)(sdram_start_address+i),&read_pattern,1);
-			read_pattern = *(__IO uint32_t *)(p++);
-			if(read_pattern!=0x12345678)
+			read_pattern = *(__IO uint16_t *)(p++);
+			if(read_pattern!=0x1234)
 			{
 				while(1){
 					HAL_GPIO_TogglePin(red_led_GPIO_Port,red_led_Pin);
