@@ -147,8 +147,8 @@ void myDMA_Callback(DMA_HandleTypeDef *_hdma)
 	done = 1;
 }
 
-uint8_t *dpo = (uint8_t*)0xd0000000;
-uint16_t pi = 240*4;
+uint32_t *dpo = (uint32_t*)0xd0000000;
+uint16_t pi = 240;
 void drawset2(float sx,float ex, float sy, float ey);
 /* USER CODE END 0 */
 

@@ -1,13 +1,13 @@
 #include <stdint.h>
 
-#define limit 250.0
+#define limit 255.0
 
-extern uint8_t *dpo;
+extern uint32_t *dpo;
 extern uint16_t pi;
 
 #define width 240.0
 #define height 320.0
-
+  extern unsigned char	 narrowrgb[256 * 1 * 3 + 1];
 void mysetpixel(uint16_t x, uint16_t y,uint32_t color);
 
 inline uint16_t checkpoint(float cx, float cy)
@@ -32,11 +32,14 @@ void drawset2(float sx,float ex, float sy, float ey)
 	float cx,cy;
 	uint8_t val;
 	float dx,dy;
+	static uint8_t co =0;
+	co++;
 
 	dx = (ex-sx)/width;
 	dy = (ey-sy)/height;
 
 	cy = sy;
+	uint32_t *dp = dpo;
 	for(uint16_t y=0;y<height;y++)
 	{	
 		cy+=dy;
@@ -45,19 +48,18 @@ void drawset2(float sx,float ex, float sy, float ey)
 		{						
 			cx+=dx;
 			val = checkpoint(cx,cy);			
-			cc = val;
-			//cc = 0xff;
-
-			c = 0xff + (cc<<8)+(cc<<16)+(cc<<24);
-			mysetpixel(x,y,c);
-		}
+			cc = val+co;								
+			c = 
+			(narrowrgb[cc*3+0]<<2*8)+
+			(narrowrgb[cc*3+1]<<1*8)+
+			(narrowrgb[cc*3+2]<<0*8);
+			*dp++ = c;
+		}		
 	}
 }
 
 void mysetpixel(uint16_t x, uint16_t y,uint32_t color){
-	uint8_t *dp = dpo + y*pi + x*4;
-	*dp++ = (color>>24)&0xff;
-	*dp++ = (color>>16)&0xff;
-	*dp++ = (color>>8)&0xff;				
-	*dp++ = color&0xff;
+	uint32_t *dp = dpo + y*pi + x;
+	*dp = color;
 }
+
