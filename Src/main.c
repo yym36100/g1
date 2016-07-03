@@ -38,6 +38,13 @@
 /* USER CODE BEGIN Includes */
 #include <stdlib.h>
 extern unsigned char const bibe[240 * 320 * 3 + 1];
+
+extern unsigned char const f1[240 * 320 * 3 + 1];
+extern unsigned char const f2[240 * 320 * 3 + 1];
+extern unsigned char const f3[240 * 320 * 3 + 1];
+extern unsigned char const f4[240 * 320 * 3 + 1];
+extern unsigned char const f5[240 * 320 * 3 + 1];
+extern unsigned char const f6[240 * 320 * 3 + 1];
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -179,7 +186,7 @@ int main(void)
   /* USER CODE BEGIN 3 */
 		HAL_GPIO_TogglePin(red_led_GPIO_Port,red_led_Pin);
 		HAL_GPIO_TogglePin(green_led_GPIO_Port,green_led_Pin);
-		HAL_Delay(200);
+		HAL_Delay(1000);
 		
 		start = HAL_GetTick();
 		p = (uint32_t*)sdram_start_address;
@@ -200,9 +207,32 @@ int main(void)
 			while(!done);
 			done = 0;
 		}
-		HAL_Delay(250);
+		HAL_Delay(1000);
 		HAL_DMA2D_Start(&hdma2d,(uint32_t)bibe,sdram_start_address,240,320);
 		HAL_DMA2D_PollForTransfer(&hdma2d,  HAL_MAX_DELAY);
+		
+		HAL_Delay(1000);
+		for(int i=0;i<10;i++)
+		{
+			HAL_DMA2D_Start(&hdma2d,(uint32_t)f1,sdram_start_address,240,320);
+			HAL_DMA2D_PollForTransfer(&hdma2d,  HAL_MAX_DELAY);
+			HAL_Delay(100);
+			HAL_DMA2D_Start(&hdma2d,(uint32_t)f2,sdram_start_address,240,320);
+			HAL_DMA2D_PollForTransfer(&hdma2d,  HAL_MAX_DELAY);
+			HAL_Delay(100);
+			HAL_DMA2D_Start(&hdma2d,(uint32_t)f3,sdram_start_address,240,320);
+			HAL_DMA2D_PollForTransfer(&hdma2d,  HAL_MAX_DELAY);
+			HAL_Delay(100);
+			HAL_DMA2D_Start(&hdma2d,(uint32_t)f4,sdram_start_address,240,320);
+			HAL_DMA2D_PollForTransfer(&hdma2d,  HAL_MAX_DELAY);
+			HAL_Delay(100);
+			HAL_DMA2D_Start(&hdma2d,(uint32_t)f5,sdram_start_address,240,320);
+			HAL_DMA2D_PollForTransfer(&hdma2d,  HAL_MAX_DELAY);
+			HAL_Delay(100);
+			HAL_DMA2D_Start(&hdma2d,(uint32_t)f6,sdram_start_address,240,320);
+			HAL_DMA2D_PollForTransfer(&hdma2d,  HAL_MAX_DELAY);			
+			HAL_Delay(100);
+		}
 		
 		
 		stop = HAL_GetTick();
@@ -273,8 +303,8 @@ void SystemClock_Config(void)
   }
 
   PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LTDC;
-  PeriphClkInitStruct.PLLSAI.PLLSAIN = 153;
-  PeriphClkInitStruct.PLLSAI.PLLSAIR = 7;
+  PeriphClkInitStruct.PLLSAI.PLLSAIN = 175;
+  PeriphClkInitStruct.PLLSAI.PLLSAIR = 4;
   PeriphClkInitStruct.PLLSAIDivR = RCC_PLLSAIDIVR_16;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
   {

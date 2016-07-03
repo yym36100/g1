@@ -1,3 +1,9 @@
 MDK-ARM/g1/
 *.lst
 *.TMP
+Src/f1.c
+Src/f2.c
+Src/f3.c
+Src/f4.c
+Src/f5.c
+Src/f6.c
