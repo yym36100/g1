@@ -147,6 +147,9 @@ void myDMA_Callback(DMA_HandleTypeDef *_hdma)
 	done = 1;
 }
 
+uint8_t *dpo = (uint8_t*)0xd0000000;
+uint16_t pi = 240*4;
+void drawset2(float sx,float ex, float sy, float ey);
 /* USER CODE END 0 */
 
 int main(void)
@@ -188,7 +191,7 @@ int main(void)
 		HAL_GPIO_TogglePin(green_led_GPIO_Port,green_led_Pin);
 		HAL_Delay(1000);
 		
-		start = HAL_GetTick();
+	
 		p = (uint32_t*)sdram_start_address;
 		//r(i=0;i<8*1024*1024;i+=4){
 			//HAL_SDRAM_Write_32b(&hsdram1,(uint32_t*)(sdram_start_address+i),&pattern,1);			
@@ -208,31 +211,31 @@ int main(void)
 			done = 0;
 		}
 		HAL_Delay(1000);
-		HAL_DMA2D_Start(&hdma2d,(uint32_t)bibe,sdram_start_address,240,320);
-		HAL_DMA2D_PollForTransfer(&hdma2d,  HAL_MAX_DELAY);
-		
-		HAL_Delay(1000);
-		for(int i=0;i<10;i++)
+		start = HAL_GetTick();
+	//todo add mandelbrot here
 		{
-			HAL_DMA2D_Start(&hdma2d,(uint32_t)f1,sdram_start_address,240,320);
-			HAL_DMA2D_PollForTransfer(&hdma2d,  HAL_MAX_DELAY);
-			HAL_Delay(100);
-			HAL_DMA2D_Start(&hdma2d,(uint32_t)f2,sdram_start_address,240,320);
-			HAL_DMA2D_PollForTransfer(&hdma2d,  HAL_MAX_DELAY);
-			HAL_Delay(100);
-			HAL_DMA2D_Start(&hdma2d,(uint32_t)f3,sdram_start_address,240,320);
-			HAL_DMA2D_PollForTransfer(&hdma2d,  HAL_MAX_DELAY);
-			HAL_Delay(100);
-			HAL_DMA2D_Start(&hdma2d,(uint32_t)f4,sdram_start_address,240,320);
-			HAL_DMA2D_PollForTransfer(&hdma2d,  HAL_MAX_DELAY);
-			HAL_Delay(100);
-			HAL_DMA2D_Start(&hdma2d,(uint32_t)f5,sdram_start_address,240,320);
-			HAL_DMA2D_PollForTransfer(&hdma2d,  HAL_MAX_DELAY);
-			HAL_Delay(100);
-			HAL_DMA2D_Start(&hdma2d,(uint32_t)f6,sdram_start_address,240,320);
-			HAL_DMA2D_PollForTransfer(&hdma2d,  HAL_MAX_DELAY);			
-			HAL_Delay(100);
+			 float sx,ex,sy,ey;
+			 float	zof = 0.00001;
+		   float zfi = 0.00001;
+			sx = -1.4481471; ex = -1.4472926; sy = -0.0012840417; ey = -0.00030747990;
+			
+			while(zof<0.00163999794){
+				
+				drawset2(sx, ex, sy, ey);
+				
+				zof+=zfi;
+				sx -= zof;
+				ex += zof;
+				sy -= zof;
+				ey += zof;
+				
+				HAL_Delay(16);
+			}
+			
+			
 		}
+		//HAL_Delay(1000);
+		//drawset2(-1.4494717,-1.4477627,-0.0017153568,0.00023776683);
 		
 		
 		stop = HAL_GetTick();

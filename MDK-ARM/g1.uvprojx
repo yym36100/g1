@@ -407,36 +407,6 @@
               <FileType>1</FileType>
               <FilePath>..\Src\2BBlB1E2.c</FilePath>
             </File>
-            <File>
-              <FileName>f1.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\f1.c</FilePath>
-            </File>
-            <File>
-              <FileName>f2.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\f2.c</FilePath>
-            </File>
-            <File>
-              <FileName>f3.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\f3.c</FilePath>
-            </File>
-            <File>
-              <FileName>f4.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\f4.c</FilePath>
-            </File>
-            <File>
-              <FileName>f5.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\f5.c</FilePath>
-            </File>
-            <File>
-              <FileName>f6.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\f6.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
